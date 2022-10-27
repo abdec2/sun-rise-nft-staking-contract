@@ -19,7 +19,9 @@ contract Shadow_Descendants is ERC721Enumerable, Ownable {
   bool public revealed = true;
   mapping(address => uint256) public addressMintedBalance;
   address payable private devguy = payable(0x41D413d4c5Ba84E37428e1de71cc0c74c6cb44f4);
-  constructor() ERC721("Shadow Descendants", "SDS") {}
+  constructor() ERC721("Shadow Descendants", "SDS") {
+    
+  }
 
   // internal
   function _baseURI() internal view virtual override returns (string memory) {
