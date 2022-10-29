@@ -2,16 +2,16 @@
 
 pragma solidity ^0.8.4 ;
 
-import "./ShadowDescendants2.sol";
+import "./Shadow_Descendents.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
-contract V2_STAKING_BNB is Ownable, IERC721Receiver {
+contract NFT_STAKING_BNB is Ownable, IERC721Receiver {
     using SafeMath for uint256;
     IERC20 reward_token;
-    ShadowDescendants2 nft;
+    Shadow_Descendants nft;
     AggregatorV3Interface internal priceFeed;
 
     uint256 public totalStaked;
@@ -29,7 +29,7 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
     event Claimed(address owner, uint256 amount);
 
 
-    constructor(address _reward_token, ShadowDescendants2 _nft) {
+    constructor(address _reward_token, Shadow_Descendants _nft) {
         reward_token = IERC20(_reward_token);
         nft = _nft;
         priceFeed = AggregatorV3Interface(0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7);  // goerli test net usdc
@@ -105,7 +105,7 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
 
     function getPeriodReward(Stake memory staked) internal view returns(uint256) {
         uint256 bnbInUsd = uint(getLatestPrice());
-        uint256 rewards_30days = 10 * 10**8; // assuming 8 decimals in usd returned by chainlink so its becomes 10 USD
+        uint256 rewards_30days = 8 * 10**8; // assuming 8 decimals in usd returned by chainlink so its becomes 8 USD
         uint256 rewards_30daysBnb = rewards_30days.mul(10**18).div(bnbInUsd);
         uint256 rewards_per_day_bnb =  rewards_30daysBnb.div(30);
         uint256 diff = block.timestamp.sub(staked.timestamp);
