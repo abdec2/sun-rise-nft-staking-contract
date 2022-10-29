@@ -624,11 +624,6 @@ interface IERC20 {
 
 pragma solidity ^0.8.4 ;
 
-
-
-
-
-
 contract SUN_RISE_NFT_STAKING is Ownable, IERC721Receiver {
     using SafeMath for uint256;
     IERC20 reward_token;

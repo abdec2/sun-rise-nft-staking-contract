@@ -95,14 +95,6 @@ contract SUN_RISE_NFT_STAKING is Ownable, IERC721Receiver {
     }
 
 
-    function getNFTStakeReward(period _stPeriod, uint256 _stakeTimestamp) internal view returns (uint256) {
-        uint256 totalStakeReward = getPeriodReward(_stPeriod);
-        uint256 noOfDays = (block.timestamp - _stakeTimestamp).div(60).div(60).div(24);
-        noOfDays = (noOfDays < 1) ? 1 : noOfDays;
-        uint256 periodValue = getPeriodValue(_stPeriod);
-        return totalStakeReward.div(periodValue).mul(noOfDays);
-    }
-
     function getPeriodReward(period _stPeriod) internal view returns(uint256) {
         return _stPeriod == period.SMALL ? smallReward : _stPeriod == period.MEDIUM ? mediumReward : _stPeriod == period.LARGE ? largeReward : _stPeriod == period.XLARGE ? xlargeReward : 0;
     }
@@ -175,5 +167,9 @@ contract SUN_RISE_NFT_STAKING is Ownable, IERC721Receiver {
       require(from == address(0x0), "Cannot send nfts to Vault directly");
       return IERC721Receiver.onERC721Received.selector;
     }
+
+    fallback() external payable {}
+
+    receive() external payable {}
 
 }
