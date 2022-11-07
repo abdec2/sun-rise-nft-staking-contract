@@ -110,8 +110,8 @@ contract V2_STAKING_SUN is Ownable, IERC721Receiver {
 
     function validateStakingPeriod(Stake memory staked) internal view returns(bool) {
         uint256 periodValue = getPeriodValue(staked.stakingPeriod);
-        //return block.timestamp >= (staked.timestamp + (86400 * periodValue));
-        return block.timestamp >= (staked.timestamp + 900);
+        //return block.timestamp >= (staked.timestamp + (86400 * periodValue)); // should be use in mainnet deployment
+        return block.timestamp >= (staked.timestamp + 900); // this is for testing.. here its validating only 15 minutes
     }
 
     function getPeriodValue(period _stPeriod) internal view returns(uint256) {

@@ -32,7 +32,7 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
     constructor(address _reward_token, ShadowDescendants2 _nft) {
         reward_token = IERC20(_reward_token);
         nft = _nft;
-        priceFeed = AggregatorV3Interface(0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7);  // goerli test net usdc
+        priceFeed = AggregatorV3Interface(0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7);  // goerli test net usdc, must change on deployment
     }
 
     function stake(uint256[] calldata tokenIds) external {
@@ -56,15 +56,17 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
 
     function _unstakeMany(uint256[] calldata tokenIds) external {
         uint256 tokenId;
+        uint256 bnbInUsd = uint(getLatestPrice());
         totalStaked -= tokenIds.length;
         uint256 earned = 0;
         for (uint i = 0; i < tokenIds.length; i++) {
             tokenId = tokenIds[i];
             Stake memory staked = vault[tokenId];
             require(staked.owner == msg.sender, "not an owner");
-            if(validateStakingPeriod(staked)) {
-                earned += getPeriodReward(staked); // multiply rewards to token decimals
-            }
+            // if(validateStakingPeriod(staked)) {
+            //     earned += getPeriodReward(staked); // multiply rewards to token decimals
+            // }
+            earned += getPeriodReward(staked, bnbInUsd); // multiply rewards to token decimals
             delete vault[tokenId];
             emit NFTUnstaked(msg.sender, tokenId, block.timestamp);
             nft.transferFrom(address(this), msg.sender, tokenId);
@@ -78,17 +80,24 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
     function claimRewards(uint256[] calldata tokenIds) external {
         uint256 tokenId;
         uint256 rewards;
+        uint256 bnbInUsd = uint(getLatestPrice());
         for (uint i = 0; i < tokenIds.length; i++) {
             tokenId = tokenIds[i];
             Stake memory staked = vault[tokenId];
             require(staked.owner == msg.sender, "not an owner");
-            if(validateStakingPeriod(staked)) {
-                uint256 earned = getPeriodReward(staked); // multiply rewards to token decimals
-                if (earned > 0) {
-                    staked.timestamp = block.timestamp;
-                    vault[tokenId] = staked;
-                    rewards += earned;
-                }
+            // if(validateStakingPeriod(staked)) {
+            //     uint256 earned = getPeriodReward(staked); // multiply rewards to token decimals
+            //     if (earned > 0) {
+            //         staked.timestamp = block.timestamp;
+            //         vault[tokenId] = staked;
+            //         rewards += earned;
+            //     }
+            // }
+            uint256 earned = getPeriodReward(staked, bnbInUsd); // multiply rewards to token decimals
+            if (earned > 0) {
+                staked.timestamp = block.timestamp;
+                vault[tokenId] = staked;
+                rewards += earned;
             }
         }
         if (rewards > 0) {
@@ -99,18 +108,17 @@ contract V2_STAKING_BNB is Ownable, IERC721Receiver {
     }
 
     function validateStakingPeriod(Stake memory staked) internal view returns(bool) {
-        //return block.timestamp >= (staked.timestamp + (86400 * 30));
-        return block.timestamp >= (staked.timestamp + 900);
+        //return block.timestamp >= (staked.timestamp + (86400 * 30)); // should be used in mainnet deployment
+        return block.timestamp >= (staked.timestamp + 900); // this is for testing. here we validating only 15 minutes 
     }
 
-    function getPeriodReward(Stake memory staked) internal view returns(uint256) {
-        uint256 bnbInUsd = uint(getLatestPrice());
+    function getPeriodReward(Stake memory staked, uint bnbInUsd) internal view returns(uint256) {
         uint256 rewards_30days = 10 * 10**8; // assuming 8 decimals in usd returned by chainlink so its becomes 10 USD
         uint256 rewards_30daysBnb = rewards_30days.mul(10**18).div(bnbInUsd);
         uint256 rewards_per_day_bnb =  rewards_30daysBnb.div(30);
         uint256 diff = block.timestamp.sub(staked.timestamp);
         uint256 noOfDays = diff.div(60*60*24);
-        noOfDays = noOfDays > 0 ? noOfDays : 1;
+        noOfDays = noOfDays > 0 ? noOfDays : 0;
         return rewards_per_day_bnb.mul(noOfDays);
 
     }
