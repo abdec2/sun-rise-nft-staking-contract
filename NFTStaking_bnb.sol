@@ -32,7 +32,7 @@ contract NFT_STAKING_BNB is Ownable, IERC721Receiver {
     constructor(address _reward_token, Shadow_Descendants _nft) {
         reward_token = IERC20(_reward_token);
         nft = _nft;
-        priceFeed = AggregatorV3Interface(0xAb5c49580294Aff77670F839ea425f5b78ab3Ae7);  // goerli test net usdc. must change on deployment
+        priceFeed = AggregatorV3Interface(0x14e613AC84a31f709eadbdF89C6CC390fDc9540A);  // ethereum mainnet bnb/usd address
     }
 
     function stake(uint256[] calldata tokenIds) external {
@@ -158,7 +158,7 @@ contract NFT_STAKING_BNB is Ownable, IERC721Receiver {
             /*uint80 answeredInRound*/
         ) = priceFeed.latestRoundData();
         // return price;
-        return 30076609199;
+        return price;
     }
 
     fallback() external payable {}

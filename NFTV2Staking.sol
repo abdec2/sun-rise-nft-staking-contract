@@ -73,7 +73,7 @@ contract V2_STAKING_SUN is Ownable, IERC721Receiver {
             Stake memory staked = vault[tokenId];
             require(staked.owner == msg.sender, "not an owner");
             if(validateStakingPeriod(staked)) {
-                earned += getPeriodReward(staked.stakingPeriod) * 10**18; // multiply rewards to token decimals
+                earned += getPeriodReward(staked.stakingPeriod) * 10**5; // multiply rewards to token decimals
             }
             delete vault[tokenId];
             emit NFTUnstaked(msg.sender, tokenId, block.timestamp);
@@ -93,7 +93,7 @@ contract V2_STAKING_SUN is Ownable, IERC721Receiver {
             Stake memory staked = vault[tokenId];
             require(staked.owner == msg.sender, "not an owner");
             if(validateStakingPeriod(staked)) {
-                uint256 earned = getPeriodReward(staked.stakingPeriod) * 10**18; // multiply rewards to token decimals
+                uint256 earned = getPeriodReward(staked.stakingPeriod) * 10**5; // multiply rewards to token decimals
                 if (earned > 0) {
                     staked.timestamp = block.timestamp;
                     vault[tokenId] = staked;
@@ -110,8 +110,8 @@ contract V2_STAKING_SUN is Ownable, IERC721Receiver {
 
     function validateStakingPeriod(Stake memory staked) internal view returns(bool) {
         uint256 periodValue = getPeriodValue(staked.stakingPeriod);
-        //return block.timestamp >= (staked.timestamp + (86400 * periodValue)); // should be use in mainnet deployment
-        return block.timestamp >= (staked.timestamp + 900); // this is for testing.. here its validating only 15 minutes
+        return block.timestamp >= (staked.timestamp + (86400 * periodValue)); // should be use in mainnet deployment
+        // return block.timestamp >= (staked.timestamp + 900); // this is for testing.. here its validating only 15 minutes
     }
 
     function getPeriodValue(period _stPeriod) internal view returns(uint256) {
